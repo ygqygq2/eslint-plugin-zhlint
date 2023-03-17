@@ -14,18 +14,23 @@ function tryRunZhlint(
   try {
     const { result, validations } = zhlint.run(value, zhlintOptions);
     validations.forEach((validation) => {
+      if (node.range) {
+        const [start, end] = node.range;
+      } else {
+        console.error(`${node.type} is not a range`);
+      }
       context.report({
         node,
         loc: {
-          start: sourceCode.getLocFromIndex(node.range[0] + beginOffset + validation.index),
-          end: sourceCode.getLocFromIndex(node.range[0] + beginOffset + validation.index + validation.length),
+          start: sourceCode.getLocFromIndex((start as number) + beginOffset + validation.index),
+          end: sourceCode.getLocFromIndex((end as number) + beginOffset + validation.index + validation.length),
         },
         messageId: 'zhlint',
         data: {
           zhlintMsg: validation.message,
         },
         fix(fixer) {
-          return fixer.replaceTextRange([node.range[0] + beginOffset, node.range[1] - endOffset], result);
+          return fixer.replaceTextRange([start + beginOffset, end - endOffset], result);
         },
       });
     });
@@ -92,7 +97,7 @@ export const create = (context: Rule.RuleContext) => {
       if (typeof node.value !== 'string') return;
       tryRunZhlint(context, sourceCode, 1, 1, node, node.value, zhlintOptions);
     },
-    TemplateElement(node) {
+    TemplateElement(node = { range: [0, 0] }) {
       if (!ruleOptions.lintStringLiterals) return;
       tryRunZhlint(context, sourceCode, 1, 1, node, node.value.cooked, zhlintOptions);
     },
