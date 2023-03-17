@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@types/eslint': ^8.21.2
+  '@types/estree': ^1.0.0
   '@types/mocha': ^10.0.1
   '@types/node': ^18.15.3
   '@typescript-eslint/eslint-plugin': ^5.55.0
@@ -36,6 +37,7 @@ dependencies:
 
 devDependencies:
   '@types/eslint': 8.21.2
+  '@types/estree': 1.0.0
   '@types/node': 18.15.3
   '@typescript-eslint/eslint-plugin': 5.55.0_qsnvknysi52qtaxqdyqyohkcku
   '@typescript-eslint/parser': 5.55.0_j4766f7ecgqbon3u7zlxn5zszu

@@ -1,4 +1,5 @@
 import { Rule } from 'eslint';
+import * as ESTree from 'estree';
 import * as zhlint from 'zhlint';
 import { Options } from 'zhlint/dist/zhlint';
 
@@ -14,8 +15,10 @@ function tryRunZhlint(
   try {
     const { result, validations } = zhlint.run(value, zhlintOptions);
     validations.forEach((validation) => {
+      let start = 0;
+      let end = 0;
       if (node.range) {
-        const [start, end] = node.range;
+        [start, end] = node.range;
       } else {
         console.error(`${node.type} is not a range`);
       }
@@ -85,9 +88,10 @@ export const create = (context: Rule.RuleContext) => {
   return {
     Program() {
       if (!ruleOptions.lintComments) return;
-      const comments = sourceCode.getAllComments();
+      const comments: ESTree.Comment[] = sourceCode.getAllComments();
       comments
-        .filter((token) => token.type !== 'Shebang')
+        // comment.type !== 'Shebang'
+        .filter((token) => token.type === 'Block' || token.type === 'Line')
         .forEach((node) => {
           tryRunZhlint(context, sourceCode, 2, node.type === 'Block' ? 2 : 0, node, node.value, zhlintOptions);
         });
