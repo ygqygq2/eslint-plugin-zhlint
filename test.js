@@ -18,7 +18,8 @@ const eslint = new ESLint({
 });
 
 (async () => {
-  const filePath = path.resolve(__dirname, "test.js");
+  const filePath = process.argv[2] || path.resolve(__dirname, "test.md");
   const results = await eslint.lintFiles([filePath]);
+
   console.log(results);
 })();
