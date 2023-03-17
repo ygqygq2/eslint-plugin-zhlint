@@ -1,114 +1,100 @@
-import { AST_NODE_TYPES } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 import { Rule } from 'eslint';
 import * as zhlint from 'zhlint';
+import { Options } from 'zhlint/dist/zhlint';
 
-interface ZHLintOptions {
-  ignore?: string[];
-  whitelist?: string[];
-  severity?: number;
-}
-
-interface ZHLintResult {
-  message: string;
-  offset: number;
-  severity: number;
-}
-
-const createRule: Rule.RuleModule = {
-  meta: {
-    type: 'suggestion',
-    fixable: 'code',
-    docs: {
-      description: 'enforce Chinese punctuation and typography.',
-      category: 'Stylistic Issues',
-      recommended: true,
-      url: 'https://github.com/ygqygq2/eslint-plugin-zhlint',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          ignore: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-          },
-          whitelist: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-          },
-          severity: {
-            type: 'number',
-            minimum: 0,
-            maximum: 2,
-          },
+function tryRunZhlint(
+  context: Rule.RuleContext,
+  sourceCode: ReturnType<typeof context.getSourceCode>,
+  endOffset: number,
+  beginOffset: number,
+  node: Rule.Node,
+  value: string,
+  zhlintOptions: Options,
+) {
+  try {
+    const { result, validations } = zhlint.run(value, zhlintOptions);
+    validations.forEach((validation) => {
+      context.report({
+        node,
+        loc: {
+          start: sourceCode.getLocFromIndex(node.range[0] + beginOffset + validation.index),
+          end: sourceCode.getLocFromIndex(node.range[0] + beginOffset + validation.index + validation.length),
         },
-        additionalProperties: false,
-      },
-    ],
-  },
-  create(context) {
-    const zhlintOptions: ZHLintOptions = context.options[0] || {};
-    const ignore = zhlintOptions.ignore || [];
-    const whitelist = zhlintOptions.whitelist || [];
-    const severity = zhlintOptions.severity || 1;
-    const sourceCode = context.getSourceCode();
-
-    function tryRunZhlint(
-      context: Rule.RuleContext,
-      sourceCode: ReturnType<typeof context.getSourceCode>,
-      endOffset: number,
-      beginOffset: number,
-      node: Rule.Node,
-      value: string,
-      zhlintOptions: ZHLintOptions,
-    ) {
-      const results: ZHLintResult[] = zhlint(value, {
-        ignore: zhlintOptions.ignore,
-        whitelist: zhlintOptions.whitelist,
-      }).map((msg) => ({
-        message: msg.message,
-        offset: msg.index + beginOffset,
-        severity: zhlintOptions.severity || 1,
-      }));
-      results.forEach((msg) => {
-        const startPos = sourceCode.getLocFromIndex(msg.offset);
-        context.report({
-          loc: {
-            start: startPos,
-            end: { line: startPos.line, column: startPos.column + 1 },
-          },
-          message: msg.message,
-          severity: msg.severity,
-        });
+        messageId: 'zhlint',
+        data: {
+          zhlintMsg: validation.message,
+        },
+        fix(fixer) {
+          return fixer.replaceTextRange([node.range[0] + beginOffset, node.range[1] - endOffset], result);
+        },
       });
-    }
+    });
+  } catch (e) {
+    // ignored
+  }
+}
 
-    return {
-      [`TemplateLiteral > .${AST_NODE_TYPES.TemplateElement}`](node: Rule.Node) {
-        if (node.parent.type === AST_NODE_TYPES.TaggedTemplateExpression) {
-          return;
-        }
-
-        const source = node.value.raw;
-        tryRunZhlint(context, sourceCode, node.end, node.start, node, source, zhlintOptions);
-      },
-      Literal(node: Rule.Node) {
-        if (typeof node.value === 'string') {
-          const endOffset = node.range[1];
-          const beginOffset = node.range[0];
-          tryRunZhlint(context, sourceCode, endOffset, beginOffset, node, node.value, zhlintOptions);
-        }
-      },
-      TemplateLiteral(node: Rule.Node) {
-        const endOffset = node.range[1];
-        const beginOffset = node.range[0];
-        const value = sourceCode.getText(node);
-        tryRunZhlint(context, sourceCode, endOffset, beginOffset, node, value, zhlintOptions);
-      },
-    };
+export const meta = {
+  type: 'layout',
+  docs: {
+    url: 'https://github.com/Jinjiang/zhlint#supported-rules',
   },
+  fixable: 'code',
+  schema: [
+    {
+      type: 'object',
+      properties: {
+        zhlint: {
+          type: 'object',
+        },
+        lintComments: {
+          type: 'boolean',
+        },
+        lintStringLiterals: {
+          type: 'boolean',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  messages: {
+    zhlint: '[zhlint] {{ zhlintMsg }}',
+  },
+};
+
+export const create = (context: Rule.RuleContext) => {
+  const sourceCode = context.getSourceCode();
+  const { zhlint: zhlintOptions, ...ruleOptions } = {
+    lintComments: true,
+    lintStringLiterals: true,
+    ...context.options[0],
+    zhlint: {
+      rules: {
+        preset: 'default',
+        trimSpace: false, // disabled by default because of false positives
+        ...context.options[0]?.zhlint?.rules,
+      },
+      ...context.options[0]?.zhlint,
+    },
+  };
+  return {
+    Program() {
+      if (!ruleOptions.lintComments) return;
+      const comments = sourceCode.getAllComments();
+      comments
+        .filter((token) => token.type !== 'Shebang')
+        .forEach((node) => {
+          tryRunZhlint(context, sourceCode, 2, node.type === 'Block' ? 2 : 0, node, node.value, zhlintOptions);
+        });
+    },
+    Literal(node) {
+      if (!ruleOptions.lintStringLiterals) return;
+      if (typeof node.value !== 'string') return;
+      tryRunZhlint(context, sourceCode, 1, 1, node, node.value, zhlintOptions);
+    },
+    TemplateElement(node) {
+      if (!ruleOptions.lintStringLiterals) return;
+      tryRunZhlint(context, sourceCode, 1, 1, node, node.value.cooked, zhlintOptions);
+    },
+  };
 };

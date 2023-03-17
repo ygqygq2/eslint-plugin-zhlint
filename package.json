@@ -16,9 +16,10 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --ext src/**/*.ts",
-    "test": "mocha src/tests --recursive"
+    "test": "mocha --require ts-node/register --experimental-specifier-resolution=node src/tests/**/*.ts --recursive"
   },
   "dependencies": {
+    "@types/mocha": "^10.0.1",
     "@typescript-eslint/experimental-utils": "^5.55.0",
     "@ygqygq2/eslint-plugin-zhlint": "link:/data/git/ygqygq2/eslint-plugin-zhlint",
     "eslint": "^8.36.0",
@@ -56,7 +57,7 @@
     "preserveUnused": true
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "license": "MIT"
 }
