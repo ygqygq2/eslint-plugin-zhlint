@@ -1,6 +1,6 @@
-const zhlint = require("zhlint");
-const { ESLint } = require("eslint");
-const { AST_NODE_TYPES } = require("@typescript-eslint/experimental-utils").ESLintUtils;
+import zhlint from "zhlint";
+import { ESLint } from "eslint";
+const { AST_NODE_TYPES } = "@typescript-eslint/experimental-utils".ESLintUtils;
 
 function tryRunZhlint(context, sourceCode, endOffset, beginOffset, node, value, zhlintOptions) {
   try {
