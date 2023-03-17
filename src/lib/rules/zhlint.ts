@@ -1,6 +1,6 @@
+import { AST_NODE_TYPES } from "@typescript-eslint/experimental-utils/dist/ts-eslint/AST/ast-node-types";
+import eslint from "eslint";
 import zhlint from "zhlint";
-
-const { AST_NODE_TYPES } = "@typescript-eslint/experimental-utils".ESLintUtils;
 
 function tryRunZhlint(context, sourceCode, endOffset, beginOffset, node, value, zhlintOptions) {
   try {
@@ -113,7 +113,7 @@ module.exports = {
       },
     ],
   },
-  create: (context) => {
+  create: (context: eslint.RuleContext<string, never>): eslint.RuleListener => {
     const sourceCode = context.getSourceCode();
     const { ast } = sourceCode;
 

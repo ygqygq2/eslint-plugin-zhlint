@@ -123,10 +123,6 @@ module.exports = {
     /* ********************************** 其它规则 ********************************** */
     "dot-notation": "off",
     "@typescript-eslint/dot-notation": "off",
-    "jest/expect-expect": [
-      "error",
-      { assertFunctionNames: ["expect", "request.*.expect", "spec.*", "*.step*.spec", "*.cleanup*"] },
-    ],
   },
   settings: {
     extensions: [".ts", ".d.ts", ".cts", ".mts", ".js", ".cjs", "mjs", ".json"],
