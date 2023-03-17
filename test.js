@@ -4,7 +4,7 @@ const path = require("path");
 
 const myPlugin = {
   rules: {
-    zhlint: require("./lib/rules/zhlint"),
+    zhlint: require("./src/lib/rules/zhlint"),
   },
 };
 
