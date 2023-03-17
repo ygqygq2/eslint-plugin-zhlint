@@ -1,5 +1,5 @@
 import zhlint from "zhlint";
-import { ESLint } from "eslint";
+
 const { AST_NODE_TYPES } = "@typescript-eslint/experimental-utils".ESLintUtils;
 
 function tryRunZhlint(context, sourceCode, endOffset, beginOffset, node, value, zhlintOptions) {
@@ -115,7 +115,7 @@ module.exports = {
   },
   create: (context) => {
     const sourceCode = context.getSourceCode();
-    const ast = sourceCode.ast;
+    const { ast } = sourceCode;
 
     const traverse = (node) => {
       if (node.type === AST_NODE_TYPES.Literal && typeof node.value === "string") {

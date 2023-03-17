@@ -1,5 +1,6 @@
-const rule = require("../../../lib/rules/zhlint");
-const RuleTester = require("eslint").RuleTester;
+const { RuleTester } = require("eslint");
+
+import rule from "../../../lib/rules/zhlint";
 
 const ruleTester = new RuleTester({
   parserOptions: {
@@ -8,9 +9,7 @@ const ruleTester = new RuleTester({
   },
 });
 ruleTester.run("zhlint", rule, {
-  valid: [
-    `"你好 abc"`,
-  ],
+  valid: [`"你好 abc"`],
   invalid: [
     {
       code: `"a你好abc"`,

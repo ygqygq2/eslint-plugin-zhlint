@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --ext src/**/*.ts",
-    "test": "mocha tests --recursive"
+    "test": "mocha src/tests --recursive"
   },
   "dependencies": {
     "@typescript-eslint/experimental-utils": "^5.55.0",
