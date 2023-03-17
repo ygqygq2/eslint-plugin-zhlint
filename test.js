@@ -4,23 +4,17 @@ const path = require("path");
 
 const myPlugin = {
   rules: {
-    "zhlint/zhlint": require("./lib/rules/zhlint"),
+    zhlint: require("./lib/rules/zhlint"),
   },
 };
 
 const eslint = new ESLint({
   overrideConfig: {
     plugins: ["@ygqygq2/zhlint"],
-    parser: "@typescript-eslint/parser",
-    parserOptions: {
-      ecmaVersion: 2020,
-      sourceType: "module",
-    },
     rules: {
       "@ygqygq2/zhlint/zhlint": "error",
     },
   },
-  useEslintrc: false,
 });
 
 (async () => {
