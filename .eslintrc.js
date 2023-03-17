@@ -65,7 +65,7 @@ module.exports = {
     "import/no-extraneous-dependencies": [
       1,
       {
-        devDependencies: ["**/*.test.{ts,js}", "**/*.spec.{ts,js}", "./test/**.{ts,js}"],
+        devDependencies: ["**/*.test.{ts,js}", "**/*.spec.{ts,js}", "./src/tests/**/**.{ts,js}"],
       },
     ],
     // 模块导入顺序规则
