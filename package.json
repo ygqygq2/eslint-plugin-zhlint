@@ -17,6 +17,8 @@
     "test": "mocha tests --recursive"
   },
   "dependencies": {
+    "@typescript-eslint/experimental-utils": "^5.55.0",
+    "@ygqygq2/eslint-plugin-zhlint": "link:/data/git/ygqygq2/eslint-plugin-zhlint",
     "requireindex": "~1.2.0",
     "zhlint": "^0.7.1"
   },
