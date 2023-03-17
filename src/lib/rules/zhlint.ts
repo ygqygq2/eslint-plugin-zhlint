@@ -8,7 +8,8 @@ function tryRunZhlint(
   sourceCode: ReturnType<typeof context.getSourceCode>,
   endOffset: number,
   beginOffset: number,
-  node: Rule.Node,
+  node: any,
+  // node: Rule.Node,
   value: string,
   zhlintOptions: Options,
 ) {
@@ -98,7 +99,7 @@ export const create = (context: Rule.RuleContext) => {
     },
     Literal(node) {
       if (!ruleOptions.lintStringLiterals) return;
-      if (typeof node.value !== 'string') return;
+      if (node && (typeof node.value as any) !== 'string') return;
       tryRunZhlint(context, sourceCode, 1, 1, node, node.value, zhlintOptions);
     },
     TemplateElement(node = { range: [0, 0] }) {
